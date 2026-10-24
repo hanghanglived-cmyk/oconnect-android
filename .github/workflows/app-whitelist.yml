@@ -34,7 +34,8 @@ jobs:
       - name: Build original native engine (all ABIs, 16 KB pages)
         run: |
           set -o pipefail
-          make -j2 -C external install ANDROID_NDK="$ANDROID_HOME/ndk/27.2.12479018" 2>&1 | tee native-build.log
+          # Recursive ABI builds share download filenames; keep outer targets serial.
+          make -C external install ANDROID_NDK="$ANDROID_HOME/ndk/27.2.12479018" 2>&1 | tee native-build.log
       - name: Unit tests, lint and standalone debug APK
         run: |
           set -o pipefail

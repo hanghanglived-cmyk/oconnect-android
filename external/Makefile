@@ -111,7 +111,8 @@ $(ARCH_OC_TARGETS): %/libopenconnect.so: $(OPENCONNECT_BOOTSTRAP_STAMP) $(OPENCO
 	}
 	GIT_DIR=$(OPENCONNECT_GIT_DIR) \
 		$(MAKE) -C openconnect/android ARCH=$* NDK=$(ANDROID_NDK) \
-			API_LEVEL=$(ANDROID_API) EXTRA_LDFLAGS="$(ANDROID_LDFLAGS)"
+			API_LEVEL=$(ANDROID_API) EXTRA_LDFLAGS="$(ANDROID_LDFLAGS)" \
+			BINDIR=$(call get_oc_sysroot,$*)/bin
 	mkdir -p $*
 	cp -Lf openconnect/android/$(TRIPLET_$*)/out/lib/libopenconnect.so $@
 

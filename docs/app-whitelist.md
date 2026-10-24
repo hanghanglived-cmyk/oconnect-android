@@ -16,6 +16,10 @@ The native engine, authentication, DTLS, DPD, IP routes, DNS settings,
 network-change receiver, foreground service type, and screen/keepalive policy
 are retained. Package-scoped actions are renamed solely to isolate this fork.
 No root, iptables, DNS-based application filtering, or new third-party SDK is used.
+The outer native Makefile passes LZ4's binary installation directory into its
+Android sysroot, so an unprivileged CI build does not try to create `/usr/local/bin`.
+Do not parallelize outer ABI targets: recursive builds share source download
+filenames. This fixes build plumbing without changing native protocol sources.
 
 ## Source review
 
