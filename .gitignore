@@ -7,3 +7,6 @@
 /captures
 .externalNativeBuild
 .*.sw*
+*.keystore
+*.jks
+keystore.properties

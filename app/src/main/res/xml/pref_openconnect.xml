@@ -27,6 +27,13 @@
         android:title="@string/authentication" />
 
     <Preference
+        android:key="pref_key_app_whitelist"
+        android:icon="@drawable/ic_settings_24"
+        android:layout="@layout/preference_navigation"
+        android:summary="@string/whitelist_summary"
+        android:title="@string/whitelist_title" />
+
+    <Preference
         android:key="pref_key_advanced"
         android:icon="@drawable/ic_settings_24"
         android:layout="@layout/preference_navigation"

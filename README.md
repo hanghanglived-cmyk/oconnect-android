@@ -1,5 +1,10 @@
 # OConnect
 
+> **OConnect WL test fork:** per-profile application allowlists, separate package
+> ID, and unchanged v1.17.0 native engine. See [usage, builds and device checks](docs/app-whitelist.md)
+> and [actual validation status](docs/app-whitelist-validation.md). This branch
+> is not an official upstream release.
+
 [![License: GPL v2](https://img.shields.io/badge/license-GPL--2.0-blue.svg)](COPYING)
 [![Android](https://img.shields.io/badge/platform-Android-3DDC84.svg)](app/build.gradle)
 [![Latest release](https://img.shields.io/github/v/release/pengyue-polaron/openconnect-next-android)](https://github.com/pengyue-polaron/openconnect-next-android/releases/latest)

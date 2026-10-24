@@ -38,7 +38,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class Xposed implements IXposedHookZygoteInit {
 
-	public static final String PKG_NAME = "io.pengyue.oconnect";
+	public static final String PKG_NAME = "io.github.hanghanglived.oconnect.whitelist";
 
 	@Override
 	public void initZygote(StartupParam startupParam) throws Throwable {

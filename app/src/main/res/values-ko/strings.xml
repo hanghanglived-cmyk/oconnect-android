@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app">OConnect</string>
+  <string name="app">OConnect WL</string>
   <string name="location">위치</string>
   <string name="cant_read_folder">폴더를 읽을 수 없습니다</string>
   <string name="cancel">취소</string>

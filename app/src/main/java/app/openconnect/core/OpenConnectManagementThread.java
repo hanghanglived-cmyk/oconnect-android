@@ -74,6 +74,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 	private VpnProfile mProfile;
 	private OpenVpnService mOpenVPNService;
 	private SharedPreferences mPrefs;
+	private final AppWhitelistConfig mAppRules;
 	private SharedPreferences mAppPrefs;
 	private String mFilesDir;
 	private String mCacheDir;
@@ -95,6 +96,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		mProfile = profile;
 		mOpenVPNService = openVpnService;
 		mPrefs = mProfile.mPrefs;
+		mAppRules = AndroidAppWhitelist.load(mPrefs);
 		mAppPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 	}
 
@@ -749,6 +751,31 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		VpnService.Builder b = mOpenVPNService.getVpnServiceBuilder();
 		setIPInfo(b);
 
+		AppWhitelistConfig appRules = mAppRules;
+		try {
+			int accepted = AndroidAppWhitelist.apply(appRules, b, mContext.getPackageManager());
+			if (appRules.enabled) {
+				// Keep the original in-tunnel KeepAlive DNS probe working. OpenConnect's
+				// outer transport sockets still bypass the VPN via onProtectSocket().
+				b.addAllowedApplication(mContext.getPackageName());
+				int skipped = appRules.packages.size() - accepted;
+				if (skipped > 0) {
+					String warning = mContext.getString(R.string.whitelist_removed, skipped);
+					log(warning); // Counts only; do not log the user's installed app list.
+					new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+							android.widget.Toast.makeText(mContext, warning,
+									android.widget.Toast.LENGTH_LONG).show());
+				}
+			}
+		} catch (AppWhitelistConfig.EmptyWhitelistException e) {
+			errorAlert(mContext.getString(R.string.whitelist_empty));
+			return false; // Never establish a full-device VPN for an empty enabled list.
+		} catch (android.content.pm.PackageManager.NameNotFoundException
+				| IllegalArgumentException | IllegalStateException | SecurityException e) {
+			errorAlert(mContext.getString(R.string.whitelist_apply_failed));
+			return false;
+		}
+
 		ParcelFileDescriptor pfd;
 		try {
 			pfd = b.establish();
@@ -801,6 +828,10 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 				mOC.pause();
 			}
 		}
+	}
+
+	public AppWhitelistConfig getAppWhitelistConfig() {
+		return mAppRules;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app">OConnect</string>
+  <string name="app">OConnect WL</string>
   <string name="location">Расположение</string>
   <string name="cant_read_folder">Не могу прочитать директорию</string>
   <string name="cancel">Отмена</string>

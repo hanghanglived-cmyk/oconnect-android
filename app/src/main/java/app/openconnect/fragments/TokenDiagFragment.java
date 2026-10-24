@@ -62,9 +62,9 @@ public class TokenDiagFragment extends Fragment {
 
 	public static final String TAG = "OConnect";
 
-	public static final String EXTRA_UUID = "io.pengyue.oconnect.UUID";
-	public static final String EXTRA_PIN = "io.pengyue.oconnect.PIN";
-	public static final String EXTRA_PIN_PROMPTED = "io.pengyue.oconnect.PIN_PROMPTED";
+	public static final String EXTRA_UUID = "io.github.hanghanglived.oconnect.whitelist.UUID";
+	public static final String EXTRA_PIN = "io.github.hanghanglived.oconnect.whitelist.PIN";
+	public static final String EXTRA_PIN_PROMPTED = "io.github.hanghanglived.oconnect.whitelist.PIN_PROMPTED";
 
 	private LibStoken mStoken;
 	private TextView mTokencode;

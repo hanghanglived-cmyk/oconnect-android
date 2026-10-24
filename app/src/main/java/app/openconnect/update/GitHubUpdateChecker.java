@@ -84,10 +84,15 @@ public final class GitHubUpdateChecker {
 		}
 	}
 
+    private static boolean isWhitelistBuild() {
+        return BuildConfig.APPLICATION_ID.equals("io.github.hanghanglived.oconnect.whitelist");
+    }
+
 	private GitHubUpdateChecker() {
 	}
 
 	public static void checkAutomatically(Activity activity) {
+        if (isWhitelistBuild()) return;
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
 		if (!preferences.getBoolean(PREF_AUTO_CHECK, true)) {
 			return;
@@ -106,6 +111,12 @@ public final class GitHubUpdateChecker {
 	}
 
 	public static void check(Activity activity, boolean manual, Listener listener) {
+        if (isWhitelistBuild()) {
+            Toast.makeText(activity, R.string.whitelist_updates_disabled, Toast.LENGTH_LONG).show();
+            if (listener != null) listener.onFinished(null,
+                    new IOException(activity.getString(R.string.whitelist_updates_disabled)));
+            return;
+        }
 		if (!CHECK_IN_PROGRESS.compareAndSet(false, true)) {
 			if (manual && isUsable(activity)) {
 				Toast.makeText(activity, R.string.update_check_already_running,

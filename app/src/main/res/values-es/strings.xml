@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app">OConnect</string>
+  <string name="app">OConnect WL</string>
   <string name="permission_description">Permite que otra aplicación controle OConnect</string>
   <string name="location">Ubicación</string>
   <string name="cant_read_folder">No se puede leer el directorio</string>

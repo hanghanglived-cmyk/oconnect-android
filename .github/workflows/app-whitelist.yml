@@ -1,0 +1,69 @@
+name: App whitelist debug APK
+on:
+  push:
+    branches: [feature/app-whitelist]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: whitelist-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install pinned SDK and native prerequisites
+        run: |
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'ndk;27.2.12479018'
+          sudo apt-get update
+          sudo apt-get install -y build-essential autoconf automake libtool libtool-bin pkg-config gettext autopoint gperf bison flex texinfo libxml2-utils xsltproc unzip wget curl
+      - name: Build original native engine (all ABIs, 16 KB pages)
+        run: |
+          set -o pipefail
+          make -C external install ANDROID_NDK="$ANDROID_HOME/ndk/27.2.12479018" 2>&1 | tee native-build.log
+      - name: Unit tests, lint and standalone debug APK
+        run: |
+          set -o pipefail
+          chmod +x gradlew
+          ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest 2>&1 | tee gradle-build.log
+      - name: Verify installable output and native payload
+        run: |
+          set -euo pipefail
+          apk=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$apk"
+          for abi in arm64-v8a armeabi-v7a x86 x86_64; do
+            for lib in libopenconnect.so libstoken.so libcurl-bin.so libcsd-wrapper.so; do
+              unzip -l "$apk" "lib/$abi/$lib" | grep -F "lib/$abi/$lib"
+            done
+          done
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | tee apk-badging.txt
+          grep -F "package: name='io.github.hanghanglived.oconnect.whitelist'" apk-badging.txt
+          sha256sum "$apk" > app-debug.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oconnect-whitelist-debug
+          if-no-files-found: error
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app-debug.apk.sha256
+            apk-badging.txt
+      - name: Save diagnostics even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-diagnostics
+          path: |
+            native-build.log
+            gradle-build.log
+            app/build/reports/

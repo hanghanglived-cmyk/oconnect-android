@@ -7,11 +7,11 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "io.pengyue.oconnect"
+        applicationId = "io.github.hanghanglived.oconnect.whitelist"
         minSdk = 23
         targetSdk = 36
         versionCode = 1130
-        versionName = "1.17.0"
+        versionName = "1.17.0-whitelist.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures {

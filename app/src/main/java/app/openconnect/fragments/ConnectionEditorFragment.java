@@ -113,6 +113,13 @@ public class ConnectionEditorFragment extends PreferenceFragment
     }
 
     private void configureNavigation() {
+        Preference appRules = findPreference("pref_key_app_whitelist");
+        if (appRules != null) appRules.setOnPreferenceClickListener(clicked -> {
+            Intent intent = new Intent(getActivity(), app.openconnect.AppWhitelistActivity.class);
+            intent.putExtra(ConnectionEditorActivity.EXTRA_PROFILE_UUID, mUUID);
+            startActivity(intent);
+            return true;
+        });
         configureNavigationPreference("pref_key_authentication",
                 ConnectionEditorActivity.SCREEN_AUTHENTICATION);
         configureNavigationPreference("pref_key_advanced",

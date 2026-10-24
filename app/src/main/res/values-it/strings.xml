@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app">OConnect</string>
+  <string name="app">OConnect WL</string>
   <string name="location">Posizione</string>
   <string name="cant_read_folder">Impossibile leggere la directory</string>
   <string name="cancel">Annulla</string>

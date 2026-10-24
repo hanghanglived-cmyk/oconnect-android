@@ -26,10 +26,6 @@
 
 package app.openconnect.api;
 
-import org.acra.ACRA;
-import org.acra.ACRAConfiguration;
-import org.acra.ErrorReporter;
-
 import app.openconnect.R;
 import app.openconnect.core.OpenVpnService;
 import android.Manifest;
@@ -50,15 +46,9 @@ public class GrantPermissionsActivity extends Activity {
 	private static final int REQUEST_POST_NOTIFICATIONS = 1;
 
 	private void reportBadRom(Exception e) {
-		ACRAConfiguration cfg = ACRA.getConfig();
-		cfg.setResDialogText(R.string.bad_rom_text);
-		cfg.setResDialogCommentPrompt(R.string.bad_rom_comment_prompt);
-		ACRA.setConfig(cfg);
-
-		ErrorReporter er = ACRA.getErrorReporter();
-		er.putCustomData("cause", "reportBadRom");
-		er.handleException(e);
-	}
+        android.widget.Toast.makeText(this, R.string.bad_rom_text,
+                android.widget.Toast.LENGTH_LONG).show();
+    }
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
