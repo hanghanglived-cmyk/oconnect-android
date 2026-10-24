@@ -2,6 +2,8 @@
 
 This is a test fork of OConnect, not an official upstream release.
 
+[中文交付、安装和验收说明](app-whitelist-delivery-zh.md)
+
 ## Baseline and scope
 
 - Upstream release: `v1.17.0`, commit `cd1d747cc3a321eeeee5b0e54d73a8062e77a1d4`.
@@ -132,6 +134,11 @@ libraries, refuses to replace different local libraries, and keeps `.so` files
 out of Git. Initialize the pinned source submodules for the JNI Java wrappers,
 install the Windows SDK platform/build tools, set `JAVA_HOME` to JDK 17 and
 `ANDROID_HOME` to that SDK, then run `gradlew.bat testDebugUnitTest lintDebug assembleDebug`.
+Use ASCII-only checkout, SDK and cache paths on Windows. For a containing
+directory with Chinese characters, a temporary unused `subst` drive can expose
+the same files with ASCII paths; remove that mapping after the build.
+Disabling AGP's initial path check alone did not fix the actual AIDL parser
+encoding failure in this environment.
 This reuses upstream native binaries; it is not a local NDK/source rebuild.
 The source-building CI path above remains available for full reproducibility.
 

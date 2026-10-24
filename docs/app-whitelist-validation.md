@@ -1,40 +1,88 @@
-# Actual validation status
+# Actual validation results
 
-Recorded 2026-10-24. This file separates executed checks from pending checks.
+Recorded 2026-10-24. Tested application/build source commit:
+`ded82c1ec2bcf8affb51c1abecb3bd2e064760f6`.
 
-## Executed
+## Successful builds
 
-- Fork fetched from `hanghanglived-cmyk/oconnect-android`.
-- Exact upstream release baseline checked out: `v1.17.0` →
-  `cd1d747cc3a321eeeee5b0e54d73a8062e77a1d4`.
-- Pinned OpenConnect and stoken submodules fetched; no native source changes.
-- Microsoft JDK 17.0.20.1 and Gradle 8.13 distributions verified against their
-  vendors' SHA256 checksums.
-- `AppWhitelistConfigTest`: **10 tests passed** with real JUnit 4.13.2 and
-  `javac --release 11` on JDK 17. These exercise disabled mode, empty lists,
-  malformed names, missing packages, immutable snapshots, fresh connection
-  application, and whether changes require a TUN restart.
-- 144 Android manifest/resource XML files parsed successfully.
-- Manifest checks: independent provider authority, backup disabled, no
-  `QUERY_ALL_PACKAGES` permission, and explicit launcher intent visibility.
-- Original release APK verified against its published SHA256:
-  `6eb30e907f38554807d34407667be4b78d364da3b59003c90ec5032968afa6ca`.
-- Its 16 native libraries imported unchanged for the Windows build. All ELF
-  PT_LOAD segments checked for at least 16 KB alignment across all four ABIs.
-- `git diff --check` passed.
+- Windows: **BUILD SUCCESSFUL**, 80 tasks executed, using JDK 17.0.20.1,
+  Gradle 8.13, Android platform 36 revision 2 and build-tools 35.0.0.
+- Commands: `:app:clean testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest`.
+- Paths temporarily mapped to an unused ASCII-only drive; mapping removed
+  after the build. Neither the checkout nor SDK was relocated.
+- Windows APK preserves the original release's 16 native binaries,
+  verified byte-for-byte against the SHA256-verified upstream v1.17.0 APK.
+- Linux Actions: **success**, including NDK `27.2.12479018` full native
+  source build, all four ABIs, unit tests, lint, main/test APK compilation.
+- [Successful Actions run](https://github.com/hanghanglived-cmyk/oconnect-android/actions/runs/40052487704).
+- [APK artifact](https://github.com/hanghanglived-cmyk/oconnect-android/actions/runs/40052487704/artifacts/12544248491).
+- [Diagnostics artifact](https://github.com/hanghanglived-cmyk/oconnect-android/actions/runs/40052487704/artifacts/12544457355).
 
-## In progress / not yet passed
+Local and CI builds use different debug signing keys. Select one source for
+installation; do not assume they can update each other. Neither is a
+production-signed release.
 
-- Full Gradle `testDebugUnitTest lintDebug assembleDebug`: in progress while
-  official SDK packages and Maven dependencies download. No build success or
-  modified APK is claimed at this checkpoint.
-- Full NDK build from source: Linux Actions workflow prepared; not yet verified.
-- `AppWhitelistStoreTest` persistence/profile-isolation test is an Android
-  instrumentation test. It has not been executed on a device.
-- TUN establishment, active-rule rebuild, authentication after rebuild,
-  network changes, lockscreen, per-app IPv4/IPv6 and DNS routing: not tested
-  on a device. See the Android 16 checklist in `app-whitelist.md`.
+## Tests and checks
 
-The downloaded upstream APK is only a native-engine input; it is not the
-modified deliverable. Only a generated and verified WL APK should be delivered
-as the implementation result.
+Gradle JUnit results: **18 tests, zero failures/errors**:
+
+| Suite | Tests |
+| --- | ---: |
+| AppWhitelistConfigTest | 10 |
+| QuickSettingsProfileSelectionTest | 4 |
+| StreamUtilsTest | 1 |
+| VersionComparatorTest | 3 |
+
+Whitelist tests cover disabled mode, empty lists, malformed names, missing
+packages, immutable snapshots, fresh connection rules and restart decisions.
+Lint: **zero errors**, 189 non-fatal local warnings. Main categories include
+unused resources, overdraw, RTL, indentation, locale and SharedPreferences
+style. This is not a warning-free codebase. `AppWhitelistStoreTest` and existing
+device tests compiled; none were executed on an Android device.
+
+Additional checks:
+
+- Exact baseline `v1.17.0` → `cd1d747cc3a321eeeee5b0e54d73a8062e77a1d4`.
+- Fork relationship and authenticated owner `hanghanglived-cmyk` verified.
+- OpenConnect `8b702bf2dbaf11302ed98629214b1df5d50a12aa` and stoken
+  `bc25aa48922064881f17201c6302ab2640e36763` fetched; protocol sources unchanged.
+- Vendor checksums verified for JDK, Gradle, SDK archives and original APK.
+- 144 manifest/resource XML files parsed; `git diff --check` passed.
+- No `QUERY_ALL_PACKAGES`; separate provider/permission; backup disabled.
+- Main APK CRC, dex, native payload, signature and metadata verified.
+  All 16 native ELF files have PT_LOAD alignment >= 16 KB.
+- `apksigner verify`: v1/v2 valid, one debug signer.
+- `aapt`: `io.github.hanghanglived.oconnect.whitelist`, version
+  `1.17.0-whitelist.1` / code `1130`, min API 23, target API 36,
+  label `OConnect WL`; arm64-v8a, armeabi-v7a, x86 and x86_64.
+- No keystores or VPN credentials committed. No upstream PR created.
+
+## Primary local deliverable
+
+`OConnect-WL-v1.17.0-whitelist.1-debug.apk`: 24,202,187 bytes.
+
+SHA256:
+
+```text
+fd0357b596aed035ac2c4e9ce543e57b5e0c9906aceea3bea3777d7ba61cc935
+```
+
+Debug certificate SHA256:
+`632f2ee1bde88f05ed779b9d3b8fd3023711ccd0ea3ba8f08597389ef9f61762`.
+
+## Device checks remain outstanding
+
+`adb devices -l` showed no attached devices. Installation, live VPN,
+Android 16/Samsung lockscreen, network switching, live TUN replacement,
+per-app routing, DNS and persistence instrumentation were not tested on a device.
+No VPN credentials were requested. Use the device checklist before replacing
+the user's stable everyday connection.
+
+## Build issues resolved
+
+- Replaced setup action's removed `tools` package with supported platform tools.
+- LZ4 installation now uses the Android sysroot `BINDIR`, not `/usr/local/bin`.
+- Kept recursive ABI builds serial to avoid shared download-file races.
+- Windows AIDL/AAPT encoding failures resolved with temporary ASCII paths.
+  Disabling AGP's initial path check alone was insufficient; no system locale
+  change was needed.

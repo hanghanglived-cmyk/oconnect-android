@@ -4,6 +4,8 @@
 > ID, and unchanged v1.17.0 native engine. See [usage, builds and device checks](docs/app-whitelist.md)
 > and [actual validation status](docs/app-whitelist-validation.md). This branch
 > is not an official upstream release.
+>
+> [中文交付、安装与 Android 16 验收说明](docs/app-whitelist-delivery-zh.md)
 
 [![License: GPL v2](https://img.shields.io/badge/license-GPL--2.0-blue.svg)](COPYING)
 [![Android](https://img.shields.io/badge/platform-Android-3DDC84.svg)](app/build.gradle)
