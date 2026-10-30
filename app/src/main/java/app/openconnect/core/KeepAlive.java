@@ -45,7 +45,7 @@ public class KeepAlive extends BroadcastReceiver {
 
 	public static final String TAG = "OConnect";
 
-	public static final String ACTION_KEEPALIVE_ALARM = "io.github.hanghanglived.oconnect.whitelist.KEEPALIVE_ALARM";
+	public static final String ACTION_KEEPALIVE_ALARM = "io.github.hanghanglived.oconnect.whitelist.diagnostic.KEEPALIVE_ALARM";
 
 	private boolean mConnectionActive;
 	private boolean mQueryInFlight;

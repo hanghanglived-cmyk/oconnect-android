@@ -37,7 +37,7 @@ public class DeviceStateReceiver extends BroadcastReceiver {
 
 	public static final String TAG = "OConnect";
 
-	public static final String PREF_CHANGED = "io.github.hanghanglived.oconnect.whitelist.PREF_CHANGED";
+	public static final String PREF_CHANGED = "io.github.hanghanglived.oconnect.whitelist.diagnostic.PREF_CHANGED";
 
     private OpenVPNManagement mManagement;
 

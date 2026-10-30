@@ -22,16 +22,22 @@ public final class AppWhitelistConfig {
         boolean allow(String packageName);
     }
 
-    public static final class EmptyWhitelistException extends Exception { }
+    public static class EmptyWhitelistException extends Exception { }
+
+    /** No partially applied list may reach establish(): that changes the user's intent. */
+    public static final class IncompleteWhitelistException extends EmptyWhitelistException { }
 
     /** Must finish successfully before establish(); never fall back to all-app VPN. */
     public int apply(RuleTarget target) throws EmptyWhitelistException {
         if (!enabled) return 0;
         int accepted = 0;
+        boolean rejected = false;
         for (String name : packages) {
             if (isPackageName(name) && target.allow(name)) accepted++;
+            else rejected = true;
         }
         if (accepted == 0) throw new EmptyWhitelistException();
+        if (rejected) throw new IncompleteWhitelistException();
         return accepted;
     }
 

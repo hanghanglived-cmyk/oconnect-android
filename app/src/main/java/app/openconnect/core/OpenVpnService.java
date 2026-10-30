@@ -61,13 +61,13 @@ public class OpenVpnService extends VpnService {
 
 	public static final String TAG = "OConnect";
 
-	public static final String START_SERVICE = "io.github.hanghanglived.oconnect.whitelist.START_SERVICE";
-	public static final String START_SERVICE_STICKY = "io.github.hanghanglived.oconnect.whitelist.START_SERVICE_STICKY";
-	public static final String ALWAYS_SHOW_NOTIFICATION = "io.github.hanghanglived.oconnect.whitelist.NOTIFICATION_ALWAYS_VISIBLE";
+	public static final String START_SERVICE = "io.github.hanghanglived.oconnect.whitelist.diagnostic.START_SERVICE";
+	public static final String START_SERVICE_STICKY = "io.github.hanghanglived.oconnect.whitelist.diagnostic.START_SERVICE_STICKY";
+	public static final String ALWAYS_SHOW_NOTIFICATION = "io.github.hanghanglived.oconnect.whitelist.diagnostic.NOTIFICATION_ALWAYS_VISIBLE";
 
-	public static final String ACTION_VPN_STATUS = "io.github.hanghanglived.oconnect.whitelist.VPN_STATUS";
-	public static final String EXTRA_CONNECTION_STATE = "io.github.hanghanglived.oconnect.whitelist.connectionState";
-	public static final String EXTRA_UUID = "io.github.hanghanglived.oconnect.whitelist.UUID";
+	public static final String ACTION_VPN_STATUS = "io.github.hanghanglived.oconnect.whitelist.diagnostic.VPN_STATUS";
+	public static final String EXTRA_CONNECTION_STATE = "io.github.hanghanglived.oconnect.whitelist.diagnostic.connectionState";
+	public static final String EXTRA_UUID = "io.github.hanghanglived.oconnect.whitelist.diagnostic.UUID";
 	public static final String PREF_NOTIFY_USER_INPUT = "notify_user_input";
 
 	// These are valid in the CONNECTED state
@@ -95,6 +95,13 @@ public class OpenVpnService extends VpnService {
 	private Thread mVPNThread;
 	private OpenConnectManagementThread mVPN;
 	private String mWhitelistRestartUUID;
+	private String mNextRebuildReason = "connection_requested";
+
+	public synchronized String consumeRebuildReason() {
+		String reason = mNextRebuildReason;
+		mNextRebuildReason = "connection_requested";
+		return reason;
+	}
 
 	private UserDialog mDialog;
 	private Context mDialogContext;
@@ -631,6 +638,7 @@ public class OpenVpnService extends VpnService {
 
 	public void stopVPN() {
 		mWhitelistRestartUUID = null;
+		mNextRebuildReason = "connection_requested";
 		killVPNThread(false);
 		ProfileManager.setConnectedVpnProfileDisconnected();
 	}
@@ -646,6 +654,7 @@ public class OpenVpnService extends VpnService {
 		boolean routingChanged = active && !mVPN.getAppWhitelistConfig().hasSameRoutingAs(config);
 		if (!AndroidAppWhitelist.save(edited.mPrefs, config)) return false;
 		if (routingChanged) {
+			mNextRebuildReason = "whitelist_saved";
 			mWhitelistRestartUUID = uuid;
 			mVPN.stopVPN();
 		}

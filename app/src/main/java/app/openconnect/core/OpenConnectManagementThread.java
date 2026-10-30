@@ -75,6 +75,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 	private OpenVpnService mOpenVPNService;
 	private SharedPreferences mPrefs;
 	private final AppWhitelistConfig mAppRules;
+	private final VpnDiagnostics mDiagnostics;
 	private SharedPreferences mAppPrefs;
 	private String mFilesDir;
 	private String mCacheDir;
@@ -97,6 +98,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		mOpenVPNService = openVpnService;
 		mPrefs = mProfile.mPrefs;
 		mAppRules = AndroidAppWhitelist.load(mPrefs);
+		mDiagnostics = VpnDiagnostics.begin(profile.getUUIDString(), openVpnService.consumeRebuildReason(), mAppRules);
 		mAppPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 	}
 
@@ -261,7 +263,9 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		}
 
 		public void onProtectSocket(int fd) {
-			if (mOpenVPNService.protect(fd) != true) {
+			boolean protectedSocket = mOpenVPNService.protect(fd);
+			mDiagnostics.transportProtected(protectedSocket);
+			if (!protectedSocket) {
 				log("Error protecting fd " + fd);
 			}
 		}
@@ -287,6 +291,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		}
 
 		if (!runVPN()) {
+			mDiagnostics.connectionFailed();
 			log("VPN terminated with errors");
 		}
 		setState(STATE_DISCONNECTED);
@@ -301,6 +306,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 	}
 
 	private synchronized void setState(int state) {
+		mDiagnostics.state(state);
 		mOpenVPNService.setConnectionState(this, state);
 	}
 
@@ -555,11 +561,13 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 
 		if (ip4def && ip.addr != null) {
 			b.addRoute("0.0.0.0", 0);
+			mDiagnostics.address("route4", "0.0.0.0/0");
 			log("ROUTE: 0.0.0.0/0");
 		}
 
 		if (ip6def && ip.netmask6 != null) {
 			b.addRoute("::", 0);
+			mDiagnostics.address("route6", "::/0");
 			log("ROUTE: ::/0");
 		}
 	}
@@ -576,6 +584,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 						b.addRoute(ss[0], Integer.parseInt(ss[1]));
 					}
 					log("ROUTE: " + s);
+					mDiagnostics.address("route6", s.contains("/") ? s : s + "/128");
 				} else {
 					CIDRIP cdr;
 					if (!s.contains("/")) {
@@ -584,6 +593,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 						cdr = new CIDRIP(s);
 					}
 					b.addRoute(cdr.mIp, cdr.len);
+					mDiagnostics.address("route4", cdr.mIp + "/" + cdr.len);
 					log("ROUTE: " + cdr.mIp + "/" + cdr.len);
 				}
 			} catch (Exception e) {
@@ -602,6 +612,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		if (ip.addr != null && ip.netmask != null) {
 			cdr = new CIDRIP(ip.addr, ip.netmask);
 			b.addAddress(cdr.mIp, cdr.len);
+			mDiagnostics.address("address4", cdr.mIp + "/" + cdr.len);
 			log("IPv4: " + cdr.mIp + "/" + cdr.len);
 		}
 		if (ip.netmask6 != null) {
@@ -609,6 +620,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 			if (ss.length == 2) {
 				int netmask = Integer.parseInt(ss[1]);
 				b.addAddress(ss[0], netmask);
+				mDiagnostics.address("address6", ip.netmask6);
 				log("IPv6: " + ip.netmask6);
 				/* RFC 2460 */
 				minMtu = 1280;
@@ -625,9 +637,11 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 
 		if (ip.MTU < minMtu) {
 			b.setMtu(minMtu);
+			mDiagnostics.number("mtu", minMtu);
 			log("MTU: " + minMtu + " (forced)");
 		} else {
 			b.setMtu(ip.MTU);
+			mDiagnostics.number("mtu", ip.MTU);
 			log("MTU: " + ip.MTU);
 		}
 
@@ -655,6 +669,8 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 			try {
 				b.addDnsServer(s);
 				b.addRoute(s, s.contains(":") ? 128 : 32);
+				mDiagnostics.address("dns", s);
+				mDiagnostics.address("dns_route", s + (s.contains(":") ? "/128" : "/32"));
 				log("DNS: " + s);
 			} catch (Exception e) {
 				log("DNS: skipping invalid server '" + s + "'");
@@ -662,6 +678,7 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		}
 		if (domain != null) {
 			b.addSearchDomain(domain);
+			mDiagnostics.number("search_domain_present_redacted", 1);
 			log("DOMAIN: " + domain);
 		}
 
@@ -753,25 +770,20 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 
 		AppWhitelistConfig appRules = mAppRules;
 		try {
-			int accepted = AndroidAppWhitelist.apply(appRules, b, mContext.getPackageManager());
+			AndroidAppWhitelist.apply(appRules, b, mContext.getPackageManager(), mDiagnostics);
 			if (appRules.enabled) {
 				// Keep the original in-tunnel KeepAlive DNS probe working. OpenConnect's
 				// outer transport sockets still bypass the VPN via onProtectSocket().
 				b.addAllowedApplication(mContext.getPackageName());
-				int skipped = appRules.packages.size() - accepted;
-				if (skipped > 0) {
-					String warning = mContext.getString(R.string.whitelist_removed, skipped);
-					log(warning); // Counts only; do not log the user's installed app list.
-					new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
-							android.widget.Toast.makeText(mContext, warning,
-									android.widget.Toast.LENGTH_LONG).show());
-				}
+				mDiagnostics.internalAllowed(mContext.getPackageName());
 			}
 		} catch (AppWhitelistConfig.EmptyWhitelistException e) {
-			errorAlert(mContext.getString(R.string.whitelist_empty));
+			mDiagnostics.failure("allowlist_aborted", e.getClass());
+			errorAlert(mContext.getString(R.string.whitelist_apply_failed));
 			return false; // Never establish a full-device VPN for an empty enabled list.
 		} catch (android.content.pm.PackageManager.NameNotFoundException
 				| IllegalArgumentException | IllegalStateException | SecurityException e) {
+			mDiagnostics.failure("allowlist_builder", e.getClass());
 			errorAlert(mContext.getString(R.string.whitelist_apply_failed));
 			return false;
 		}
@@ -779,12 +791,15 @@ public class OpenConnectManagementThread implements Runnable, OpenVPNManagement 
 		ParcelFileDescriptor pfd;
 		try {
 			pfd = b.establish();
+			mDiagnostics.established(pfd != null);
 		} catch (Exception e) {
+			mDiagnostics.failure("establish", e.getClass());
 			log("Exception during establish(): " + e.getLocalizedMessage());
 			return false;
 		}
 
 		if (pfd == null || mOC.setupTunFD(pfd.getFd()) != 0) {
+			mDiagnostics.failure("setupTunFD", IllegalStateException.class);
 			log("Error setting up tunnel fd");
 			errorAlert();
 			return false;

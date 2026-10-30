@@ -33,18 +33,33 @@ public final class AndroidAppWhitelist {
         try {
             return pm.getApplicationInfo(name, 0).enabled;
         } catch (PackageManager.NameNotFoundException | IllegalArgumentException | SecurityException e) {
+            VpnDiagnostics.current().catalogUnavailable(name, e.getClass());
             return false;
         }
     }
 
     public static int apply(AppWhitelistConfig config, VpnService.Builder builder, PackageManager pm)
             throws AppWhitelistConfig.EmptyWhitelistException {
+        return apply(config, builder, pm, VpnDiagnostics.current());
+    }
+
+    public static int apply(AppWhitelistConfig config, VpnService.Builder builder, PackageManager pm,
+            VpnDiagnostics diagnostics) throws AppWhitelistConfig.EmptyWhitelistException {
+        diagnostics.rules(config);
         return config.apply(name -> {
-            if (!isInstalled(pm, name)) return false;
             try {
+                android.content.pm.ApplicationInfo info = pm.getApplicationInfo(name, 0);
+                if (!info.enabled) {
+                    diagnostics.rejected(name, "disabled");
+                    return false;
+                }
                 builder.addAllowedApplication(name);
+                diagnostics.accepted(name, info.uid);
                 return true;
-            } catch (PackageManager.NameNotFoundException | IllegalArgumentException | SecurityException e) {
+            } catch (PackageManager.NameNotFoundException | IllegalArgumentException
+                    | IllegalStateException | SecurityException e) {
+                // Do not persist raw exception messages: OEM messages can contain private data.
+                diagnostics.rejected(name, e.getClass().getSimpleName());
                 return false;
             }
         });
