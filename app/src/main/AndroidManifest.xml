@@ -6,6 +6,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Discover user-launchable apps without requesting broad installed-app access. -->
     <queries>
+        <!-- Explicit visibility for optional, non-launcher service dependencies. -->
+        <package android:name="com.openai.chatgpt" />
+        <package android:name="com.google.android.apps.bard" />
+        <package android:name="com.google.android.googlequicksearchbox" />
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" />
+        <package android:name="com.android.chrome" />
+        <package android:name="com.google.android.youtube" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
@@ -34,12 +42,13 @@
         android:allowBackup="false"
         android:enableOnBackInvokedCallback="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app"
+        android:label="@string/diagnostic_app_label"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.OConnect"
         android:name="app.openconnect.Application" >
         <activity android:name="app.openconnect.AppWhitelistActivity" android:exported="false" />
+        <activity android:name="app.openconnect.VpnDiagnosticsActivity" android:exported="false" />
         <activity
             android:name="app.openconnect.ConnectionEditorActivity" />
         <activity
