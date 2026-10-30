@@ -54,10 +54,10 @@ public class FileSelect extends ToolbarActivity {
 	public static final String RESULT_DATA = "RESULT_PATH";
 	public static final String START_DATA = "START_DATA";
 	public static final String WINDOW_TITLE = "WINDOW_TILE";
-	public static final String NO_INLINE_SELECTION = "io.github.hanghanglived.oconnect.whitelist.NO_INLINE_SELECTION";
-	public static final String FORCE_INLINE_SELECTION = "io.github.hanghanglived.oconnect.whitelist.FORCE_INLINE_SELECTION";
-	public static final String SHOW_CLEAR_BUTTON = "io.github.hanghanglived.oconnect.whitelist.SHOW_CLEAR_BUTTON";
-	public static final String DO_BASE64_ENCODE = "io.github.hanghanglived.oconnect.whitelist.BASE64ENCODE";
+	public static final String NO_INLINE_SELECTION = "io.github.hanghanglived.oconnect.whitelist.diagnostic.NO_INLINE_SELECTION";
+	public static final String FORCE_INLINE_SELECTION = "io.github.hanghanglived.oconnect.whitelist.diagnostic.FORCE_INLINE_SELECTION";
+	public static final String SHOW_CLEAR_BUTTON = "io.github.hanghanglived.oconnect.whitelist.diagnostic.SHOW_CLEAR_BUTTON";
+	public static final String DO_BASE64_ENCODE = "io.github.hanghanglived.oconnect.whitelist.diagnostic.BASE64ENCODE";
 
 	private static final int MAX_FILE_LEN = 32768;
 

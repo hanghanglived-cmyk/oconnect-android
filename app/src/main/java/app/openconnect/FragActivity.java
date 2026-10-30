@@ -32,9 +32,9 @@ public class FragActivity extends ToolbarActivity {
 
 	public static final String TAG = "OConnect";
 
-	public static final String EXTRA_FRAGMENT_NAME = "io.github.hanghanglived.oconnect.whitelist.fragment_name";
+	public static final String EXTRA_FRAGMENT_NAME = "io.github.hanghanglived.oconnect.whitelist.diagnostic.fragment_name";
 	public static final String EXTRA_OPEN_ADD_PROFILE =
-			"io.github.hanghanglived.oconnect.whitelist.open_add_profile";
+			"io.github.hanghanglived.oconnect.whitelist.diagnostic.open_add_profile";
 
 	public static final String FRAGMENT_PREFIX = "app.openconnect.fragments.";
 
