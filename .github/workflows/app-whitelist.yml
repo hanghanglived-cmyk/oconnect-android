@@ -1,7 +1,7 @@
 name: App whitelist debug APK
 on:
   push:
-    branches: [feature/app-whitelist]
+    branches: [feature/app-whitelist, "fix/**"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,16 +26,14 @@ jobs:
           cmdline-tools-version: '13114758'
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
-      - name: Install pinned SDK and native prerequisites
+      - name: Install pinned SDK
         run: |
-          sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'ndk;27.2.12479018'
-          sudo apt-get update
-          sudo apt-get install -y build-essential autoconf automake libtool libtool-bin pkg-config gettext autopoint gperf bison flex texinfo libxml2-utils xsltproc unzip wget curl
-      - name: Build original native engine (all ABIs, 16 KB pages)
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Import unchanged hash-verified native engine (all ABIs)
         run: |
-          set -o pipefail
-          # Recursive ABI builds share download filenames; keep outer targets serial.
-          make -C external install ANDROID_NDK="$ANDROID_HOME/ndk/27.2.12479018" 2>&1 | tee native-build.log
+          set -euo pipefail
+          curl --fail --location --retry 3 https://github.com/pengyue-polaron/oconnect-android/releases/download/v1.17.0/oconnect-v1.17.0-debug.apk -o "$RUNNER_TEMP/upstream.apk"
+          python3 scripts/import-release-native.py "$RUNNER_TEMP/upstream.apk" | tee native-build.log
       - name: Unit tests, lint and standalone debug APK
         run: |
           set -o pipefail
@@ -51,9 +49,9 @@ jobs:
               unzip -l "$apk" "lib/$abi/$lib" | grep -F "lib/$abi/$lib"
             done
           done
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | tee apk-badging.txt
-          grep -F "package: name='io.github.hanghanglived.oconnect.whitelist'" apk-badging.txt
+          grep -F "package: name='io.github.hanghanglived.oconnect.whitelist.diagnostic'" apk-badging.txt
           sha256sum "$apk" > app-debug.apk.sha256
       - uses: actions/upload-artifact@v4
         with:
