@@ -72,8 +72,8 @@ public class VpnDiagnosticsActivity extends ToolbarActivity {
                             .append("\naddresses=").append(lp.getLinkAddresses())
                             .append("\nroutes=").append(lp.getRoutes())
                             .append("\ndns=").append(lp.getDnsServers())
-                            .append("\nmtu=").append(lp.getMtu())
                             .append("\nsearch_domains=").append(lp.getDomains() == null ? "absent" : "present (redacted)");
+                    if (Build.VERSION.SDK_INT >= 29) out.append("\nmtu=").append(lp.getMtu());
                     if (Build.VERSION.SDK_INT >= 28) out.append("\nprivate_dns_active=").append(lp.isPrivateDnsActive());
                 }
                 // The app never calls setUnderlyingNetworks(). Do not use hidden platform APIs
