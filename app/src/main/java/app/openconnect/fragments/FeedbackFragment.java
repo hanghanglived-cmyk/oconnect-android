@@ -48,7 +48,7 @@ import app.openconnect.R;
 public class FeedbackFragment extends Fragment {
 
 	public static final String TAG = "OConnect";
-	public static final String marketURI = "market://details?id=io.github.hanghanglived.oconnect.whitelist";
+	public static final String marketURI = "market://details?id=io.github.hanghanglived.oconnect.whitelist.diagnostic";
 
 	/* ask for feedback exactly once, after NAGDAYS && NAGUSES */
 	private static final int nagDays = 14;
