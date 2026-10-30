@@ -3,7 +3,7 @@
     <string name="whitelist_title">应用分流</string>
     <string name="whitelist_summary">选择使用此 VPN 配置的应用</string>
     <string name="whitelist_enable">启用应用白名单</string>
-    <string name="whitelist_explanation">仅勾选的应用使用此 VPN，并受原有配置及网关路由限制。其他应用使用默认网络。VPN 服务自身始终保留隧道访问，以维持原有心跳。此列表显示当前 Android 用户下有启动器入口的应用。保存正在使用的规则会短暂断开并重新连接，可能需要再次认证。系统“阻止未使用 VPN 的连接”可能使其他应用无法直连。</string>
+    <string name="whitelist_explanation">仅勾选的应用使用此 VPN，并受原有网关及网段路由限制。VPN 服务自身保留隧道访问以维持原有心跳。此列表显示当前 Android 用户下可见的应用；Google Play 服务等组件请打开“显示系统应用”。共享 UID 可能共享路由。保存活动规则会断开并重连。系统“阻止未使用 VPN 的连接”可能使其他应用无法直连。</string>
     <string name="whitelist_count">已选择 %1$d 个应用</string>
     <string name="whitelist_search">搜索应用名称或包名</string>
     <string name="whitelist_loading">正在读取已安装应用…</string>
@@ -13,10 +13,19 @@
     <string name="whitelist_clear_confirm">清空所有已选应用并关闭白名单？点击保存后生效。</string>
     <string name="whitelist_empty">启用白名单前，请至少选择一个已安装且可用的应用。VPN 连接未启动。</string>
     <string name="whitelist_removed">已跳过 %1$d 个已卸载或不可用的应用，请在“应用分流”中检查选择。</string>
-    <string name="whitelist_apply_failed">无法应用应用分流规则，VPN 连接未启动。请检查白名单。</string>
+    <string name="whitelist_apply_failed">部分所选应用无法应用，VPN 接口未建立。请查看 VPN 诊断并更正白名单。</string>
     <string name="whitelist_save_failed">保存失败。请等待认证或重新连接完成后重试；若仍失败，请检查可用存储空间。</string>
     <string name="whitelist_saved">已保存。若正在使用的分流规则有变化，VPN 将断开并重新连接。</string>
     <string name="whitelist_selected">已选择</string>
     <string name="whitelist_not_selected">未选择</string>
     <string name="whitelist_updates_disabled">此测试版的更新请从自己的 Fork 的 GitHub Actions 获取。</string>
+    <string name="whitelist_show_system">显示系统应用</string>
+    <string name="whitelist_unavailable">以下已选包不可用或不可见：%1$s。已保留选择。请打开系统应用开关检查，或明确移除这些选择。任一选中包无法应用时，将停止 VPN 接口建立。</string>
+    <string name="whitelist_remove_unavailable">移除这些选择</string>
+    <string name="vpn_diagnostics_title">VPN 诊断</string>
+    <string name="diagnostics_privacy">诊断仅保存在内存中。导出包含所选包名、UID 及 VPN 地址、DNS 和路由；配置标识与域名已脱敏。不包含认证日志、密码、Cookie 或 Token，不自动上传。共享 UID 的应用可能共享 VPN 路由，分享前请检查文件。</string>
+    <string name="diagnostics_refresh">刷新</string>
+    <string name="diagnostics_export">导出脱敏诊断日志</string>
+    <string name="diagnostics_exported">诊断日志已导出。</string>
+    <string name="diagnostics_export_failed">无法导出诊断日志。</string>
 </resources>
