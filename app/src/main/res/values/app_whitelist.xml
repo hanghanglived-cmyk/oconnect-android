@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="diagnostic_app_label">OConnect WL Debug</string>
     <string name="whitelist_title">App Split Tunneling</string>
     <string name="whitelist_summary">Choose which apps use this VPN profile</string>
     <string name="whitelist_enable">Enable app whitelist</string>
-    <string name="whitelist_explanation">Only selected apps use this VPN, subject to the profile and gateway routes. Other apps use the default network. The VPN service is always included for its existing keepalive. Lists show apps with launcher entries in this Android user. Saving active rules briefly disconnects and reconnects; authentication may be required. Android’s “Block connections without VPN” can prevent direct access for other apps.</string>
+    <string name="whitelist_explanation">Only selected apps use this VPN, subject to the original gateway and route settings. The VPN app retains tunnel access for its existing keepalive. This list shows apps visible to the current Android user. Use Show system apps for Google Play services. Shared UIDs share routing. Saving active rules reconnects the VPN. System lockdown can block direct traffic.</string>
     <string name="whitelist_count">Selected apps: %1$d</string>
     <string name="whitelist_search">Search app name or package</string>
     <string name="whitelist_loading">Loading installed apps…</string>
@@ -13,10 +14,19 @@
     <string name="whitelist_clear_confirm">Clear all selected apps and turn off the whitelist? Tap Save to apply.</string>
     <string name="whitelist_empty">Select at least one installed, available app before enabling the whitelist. VPN connection was not started.</string>
     <string name="whitelist_removed">Skipped %1$d uninstalled or unavailable apps. Review the selection in App Split Tunneling.</string>
-    <string name="whitelist_apply_failed">Could not apply app rules. VPN connection was not started. Review your whitelist.</string>
+    <string name="whitelist_apply_failed">Some selected packages could not be applied. No VPN interface was established. Check VPN diagnostics and correct the whitelist.</string>
     <string name="whitelist_save_failed">Could not save. Wait until authentication or reconnection finishes and try again. If it persists, check available storage.</string>
     <string name="whitelist_saved">Saved. Changes to active routing rules are applied by disconnecting and reconnecting.</string>
     <string name="whitelist_selected">Selected</string>
     <string name="whitelist_not_selected">Not selected</string>
     <string name="whitelist_updates_disabled">Updates for this test build are available from your fork’s GitHub Actions.</string>
+    <string name="whitelist_show_system">Show system apps</string>
+    <string name="whitelist_unavailable">These selected packages are unavailable or not visible: %1$s. Selections are preserved. Enable system apps to review them, or explicitly remove unavailable selections. VPN setup stops if any selected package cannot be applied.</string>
+    <string name="whitelist_remove_unavailable">Remove these selections</string>
+    <string name="vpn_diagnostics_title">VPN diagnostics</string>
+    <string name="diagnostics_privacy">Technical data stays in memory. Export includes selected package names, UIDs and VPN IP/DNS/routes; profile identity and domains are redacted. No authentication log, password, cookie or token is included. No automatic upload. Shared UIDs can share VPN routing. Review the file before sharing.</string>
+    <string name="diagnostics_refresh">Refresh</string>
+    <string name="diagnostics_export">Export sanitized diagnostics</string>
+    <string name="diagnostics_exported">Diagnostics exported.</string>
+    <string name="diagnostics_export_failed">Could not export diagnostics.</string>
 </resources>
