@@ -17,6 +17,14 @@
     <TextView android:id="@+id/whitelist_count" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:layout_margin="16dp"
         android:accessibilityLiveRegion="polite" android:textColor="?attr/colorOnSurface" />
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/whitelist_show_system" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+        android:minHeight="48dp" android:text="@string/whitelist_show_system" />
+    <com.google.android.material.button.MaterialButton
+        style="?attr/materialButtonOutlinedStyle" android:id="@+id/whitelist_diagnostics"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/vpn_diagnostics_title" />
     <EditText android:id="@+id/whitelist_search" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
         android:minHeight="48dp" android:hint="@string/whitelist_search"
