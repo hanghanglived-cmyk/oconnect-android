@@ -85,7 +85,7 @@ public final class GitHubUpdateChecker {
 	}
 
     private static boolean isWhitelistBuild() {
-        return BuildConfig.APPLICATION_ID.equals("io.github.hanghanglived.oconnect.whitelist");
+        return BuildConfig.APPLICATION_ID.equals("io.github.hanghanglived.oconnect.whitelist.diagnostic");
     }
 
 	private GitHubUpdateChecker() {
