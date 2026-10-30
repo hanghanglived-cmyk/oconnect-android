@@ -20,17 +20,21 @@ public class AppWhitelistConfigTest {
         new AppWhitelistConfig(true, names()).apply(name -> true);
     }
 
-    @Test public void skipsMalformedNamesBeforeCallingAndroid() throws Exception {
+    @Test public void malformedNamesAbortBeforeEstablishWithoutCallingAndroidForThem() throws Exception {
         Set<String> called = new HashSet<>();
         AppWhitelistConfig config = new AppWhitelistConfig(true,
                 names("com.example.app", "bad/name", "", "com..bad", "com.example;", null));
-        assertEquals(1, config.apply(name -> { called.add(name); return true; }));
+        try {
+            config.apply(name -> { called.add(name); return true; });
+            fail("Partial list must not reach establish");
+        } catch (AppWhitelistConfig.IncompleteWhitelistException expected) { }
         assertEquals(names("com.example.app"), called);
     }
 
-    @Test public void uninstallRaceSkipsMissingPackageAndKeepsValidRules() throws Exception {
+    @Test(expected = AppWhitelistConfig.IncompleteWhitelistException.class)
+    public void uninstallRaceMustNotSilentlyNarrowTheList() throws Exception {
         AppWhitelistConfig config = new AppWhitelistConfig(true, names("com.example.gone", "com.example.app"));
-        assertEquals(1, config.apply(name -> name.equals("com.example.app")));
+        config.apply(name -> name.equals("com.example.app"));
     }
 
     @Test(expected = AppWhitelistConfig.EmptyWhitelistException.class)
